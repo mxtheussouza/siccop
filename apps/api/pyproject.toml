@@ -22,8 +22,8 @@ dependencies = [
 dev = [
   "ruff==0.11.8",
   "pyright==1.1.400",
-  "pytest==8.3.5",
-  "pytest-asyncio==0.26.0",
+  "pytest==9.0.3",
+  "pytest-asyncio==1.4.1",
   "pytest-cov==6.1.1",
   "httpx==0.28.1",
   "testcontainers[postgres,redis,minio]==4.10.0",
