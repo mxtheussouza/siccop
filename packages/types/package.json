@@ -3,5 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "types": "src/index.ts",
-  "scripts": { "typecheck": "tsc --project tsconfig.json", "build": "tsc --project tsconfig.json" }
+  "scripts": {
+    "typecheck": "tsc --project tsconfig.json",
+    "build": "tsc --project tsconfig.json"
+  }
 }

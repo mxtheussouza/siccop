@@ -1,5 +1,14 @@
 {
   "app": { "name": "Coordenação operacional" },
-  "tabs": { "map": "Mapa", "incidents": "Incidentes", "operation": "Operação", "alerts": "Alertas", "profile": "Perfil" },
-  "bootstrap": { "title": "Recurso ainda não implementado", "description": "Esta tela faz parte da estrutura inicial. Nenhum dado operacional está disponível nesta etapa." }
+  "tabs": {
+    "map": "Mapa",
+    "incidents": "Incidentes",
+    "operation": "Operação",
+    "alerts": "Alertas",
+    "profile": "Perfil"
+  },
+  "bootstrap": {
+    "title": "Recurso ainda não implementado",
+    "description": "Esta tela faz parte da estrutura inicial. Nenhum dado operacional está disponível nesta etapa."
+  }
 }

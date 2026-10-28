@@ -23,20 +23,27 @@ class ReadyRead(BaseModel):
     dependencies: dict[str, DependencyStatus]
 
 
-def create_app(settings: Settings | None = None,
-               readiness_check: ReadinessCheck | None = None) -> FastAPI:
+def create_app(
+    settings: Settings | None = None, readiness_check: ReadinessCheck | None = None
+) -> FastAPI:
     config = settings or Settings()
     configure_logging(config.log_level)
     app = FastAPI(
-        title="Operational Platform API", version="0.1.0", debug=False,
+        title="Operational Platform API",
+        version="0.1.0",
+        debug=False,
         docs_url=None if config.app_env == "production" else "/docs",
         redoc_url=None,
         responses={422: {"model": ProblemRead}, 500: {"model": ProblemRead}},
     )
-    app.add_middleware(CORSMiddleware, allow_origins=config.cors_origins,
-                       allow_credentials=True, allow_methods=["GET"],
-                       allow_headers=["X-Correlation-ID", "Content-Type"],
-                       expose_headers=["X-Correlation-ID"])
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=config.cors_origins,
+        allow_credentials=True,
+        allow_methods=["GET"],
+        allow_headers=["X-Correlation-ID", "Content-Type"],
+        expose_headers=["X-Correlation-ID"],
+    )
     app.add_middleware(CorrelationMiddleware)
     register_error_handlers(app)
     check = readiness_check or DependencyProbe(config).check
@@ -45,15 +52,24 @@ def create_app(settings: Settings | None = None,
     async def health() -> HealthRead:
         return HealthRead()
 
-    @app.get("/ready", response_model=ReadyRead, operation_id="get_readiness", tags=["platform"],
-             responses={503: {"model": ProblemRead}})
+    @app.get(
+        "/ready",
+        response_model=ReadyRead,
+        operation_id="get_readiness",
+        tags=["platform"],
+        responses={503: {"model": ProblemRead}},
+    )
     async def ready() -> ReadyRead:
         statuses = await check()
         if set(statuses) != {"database", "redis", "storage"} or any(
             value != "up" for value in statuses.values()
         ):
-            raise ApplicationError(status=503, code="DEPENDENCY_UNAVAILABLE", title="Not ready",
-                                   detail="A required dependency is unavailable")
+            raise ApplicationError(
+                status=503,
+                code="DEPENDENCY_UNAVAILABLE",
+                title="Not ready",
+                detail="A required dependency is unavailable",
+            )
         return ReadyRead(dependencies=statuses)
 
     return app

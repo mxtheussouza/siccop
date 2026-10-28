@@ -2,7 +2,7 @@
 
 **Objective:** correct, concurrency-safe incident domain: state machine, atomic capture, optimistic locking, assignments, append-only actions. API only.
 
-**Read:** SPEC §4 (Incident*, IncidentType), §5 (Incident state machine, Capture), §6 (INC-01..07), §3; DECISIONS (Errors, Offline command table for idempotency expectations).
+**Read:** SPEC §4 (Incident\*, IncidentType), §5 (Incident state machine, Capture), §6 (INC-01..07), §3; DECISIONS (Errors, Offline command table for idempotency expectations).
 
 ## Tasks
 

@@ -9,7 +9,10 @@ const config: ExpoConfig = {
   orientation: "default",
   userInterfaceStyle: "automatic",
   plugins: ["expo-router", "expo-dev-client"],
-  ios: { supportsTablet: true, bundleIdentifier: "org.operationalplatform.mobile" },
+  ios: {
+    supportsTablet: true,
+    bundleIdentifier: "org.operationalplatform.mobile",
+  },
   android: { package: "org.operationalplatform.mobile" },
   experiments: { typedRoutes: true },
 };

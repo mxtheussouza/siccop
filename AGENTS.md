@@ -39,6 +39,7 @@ Forbidden ways to get green: disabling or loosening type checks or lint rules, d
 **Language.** All identifiers, filenames, tables, columns, routes, events, config keys, logs and technical docs in English. End-user strings in pt-BR via an i18n catalog (never inline literals in components). No Portuguese in code (`incident`, not `incidente`).
 
 **Backend (Python).** Python 3.13, FastAPI, Pydantic v2, SQLAlchemy 2.x async + asyncpg, Alembic, PostGIS via GeoAlchemy2. Modular monolith: modules under `apps/api/src/app/modules/<module>/` with only the layers that module needs (`domain/ application/ infrastructure/ presentation/`). No cross-module imports of another module's `infrastructure`; talk through its `application` API or domain events.
+
 - Transaction boundary = one unit of work per request/command, committed by the application layer. Repositories never commit.
 - API never returns ORM models. Explicit Pydantic schemas (`XCreate`, `XUpdate`, `XRead`, `XListItem`).
 - Async only for I/O. CPU/blocking work (Shapely on large inputs, PDF, Pillow, boto3 sync calls, KML/KMZ parsing) goes to the worker or `anyio.to_thread`, never inline in the event loop.

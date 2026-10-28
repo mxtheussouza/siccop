@@ -24,13 +24,13 @@ prompts/phase-01..14.md   One prompt per phase, each with objective exit criteri
 
 ## Milestones
 
-| Milestone | After phase | What you can demo |
-|---|---|---|
-| M1 — Web + API vertical | 05 | Login, operations, incidents, capture, realtime in two browsers |
-| M2 — Map + tracking | 08 | POIs/routes/areas, imports, simulated agent moving on web map |
-| M3 — Mobile online | 09 | Android/iOS app: login, map, GPS, incidents (device checklist required) |
-| M4 — Offline | 10 | Outbox + location buffer + reconciliation |
-| M5 — Complete | 14 | Everything in `SPEC.md`, with honest `LIMITATIONS.md` |
+| Milestone               | After phase | What you can demo                                                       |
+| ----------------------- | ----------- | ----------------------------------------------------------------------- |
+| M1 — Web + API vertical | 05          | Login, operations, incidents, capture, realtime in two browsers         |
+| M2 — Map + tracking     | 08          | POIs/routes/areas, imports, simulated agent moving on web map           |
+| M3 — Mobile online      | 09          | Android/iOS app: login, map, GPS, incidents (device checklist required) |
+| M4 — Offline            | 10          | Outbox + location buffer + reconciliation                               |
+| M5 — Complete           | 14          | Everything in `SPEC.md`, with honest `LIMITATIONS.md`                   |
 
 ## Why modular
 

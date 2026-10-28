@@ -1,4 +1,5 @@
 """Check Phase 01 source completeness without claiming runtime verification."""
+
 import json
 import re
 from pathlib import Path
@@ -14,7 +15,7 @@ def requirement_classes(specification: str) -> dict[str, tuple[str, ...]]:
         for index, match in enumerate(matches):
             prefix, start, end, primary = match.groups()
             stop = matches[index + 1].start() if index + 1 < len(matches) else len(line)
-            suffix = line[match.end():stop]
+            suffix = line[match.end() : stop]
             tags = [primary, *re.findall(r"`?\[([AEDM])\]`?", suffix)]
             for number in range(int(start), int(end or start) + 1):
                 result[f"{prefix}-{number:02}"] = tuple(dict.fromkeys(classes[tag] for tag in tags))

@@ -2,9 +2,9 @@
 
 Requirements: AUTH-05, ATT-02, TRK-06, TRK-08, NOT-02, OFF-04; related UX MOB-04. Status: NOT-STARTED. This is a future-phase checklist, not evidence of implemented features. Only a human tester may tick items after running the relevant build on a physical device.
 
-| Tester | Date | Device | OS version | Build ID | Result | Notes |
-|---|---|---|---|---|---|---|
-| Pending | — | — | — | — | NOT RUN | No device tested |
+| Tester  | Date | Device | OS version | Build ID | Result  | Notes            |
+| ------- | ---- | ------ | ---------- | -------- | ------- | ---------------- |
+| Pending | —    | —      | —          | —        | NOT RUN | No device tested |
 
 - [ ] SecureStore lifecycle and logout removal work; no plaintext token storage/logging.
 - [ ] When-In-Use prompt has the correct usage explanation and prior rationale; denial remains usable.

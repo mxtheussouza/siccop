@@ -1,5 +1,8 @@
 {
-  "app": { "name": "Coordenação operacional", "description": "Plataforma de monitoramento e coordenação de operações." },
+  "app": {
+    "name": "Coordenação operacional",
+    "description": "Plataforma de monitoramento e coordenação de operações."
+  },
   "login": {
     "stage": "Ambiente em construção · Fase 01",
     "title": "Acesso à plataforma",

@@ -11,118 +11,118 @@ The agent's memory between sessions. **Read first, update last.** Keep it short 
 
 ## Environment (fill in Phase 01, refresh when it changes)
 
-| Probe | Result |
-|---|---|
-| Docker available | CLI 29.8.0 / Compose 5.5.1. Detached Desktop start returned 0 with Starting Docker Desktop; docker info / infra-up still fail because the socket is absent. Server availability is unverified. |
-| OS | macOS / Darwin 27.0.0, arm64 |
-| Android SDK / emulator | `adb` and `emulator` not found |
-| Xcode / iOS simulator | Command Line Tools only; `xcodebuild` and `simctl` unavailable |
-| Node / pnpm | Node 24.18.0; pnpm 12.4.2 verified from the workspace Corepack cache. Package downloads still fail npm DNS. |
-| Python / uv | Managed Python 3.13.16 found; API .venv created with it. System Python 3.14.7; uv 0.13.4. Makefile no longer hides host-managed installs. |
-| Pinned versions file | docs/VERSIONS.md (installed tools distinguished from uninstalled direct pins) |
-| Registry access | npm, PyPI and files.pythonhosted.org downloads fail DNS. Cached registry metadata is sufficient for make lock, not package installation. |
-| Git | No `.git` repository supplied; no commits created |
+| Probe                  | Result                                                                                                                                                                                         |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Docker available       | CLI 29.8.0 / Compose 5.5.1. Detached Desktop start returned 0 with Starting Docker Desktop; docker info / infra-up still fail because the socket is absent. Server availability is unverified. |
+| OS                     | macOS / Darwin 27.0.0, arm64                                                                                                                                                                   |
+| Android SDK / emulator | `adb` and `emulator` not found                                                                                                                                                                 |
+| Xcode / iOS simulator  | Command Line Tools only; `xcodebuild` and `simctl` unavailable                                                                                                                                 |
+| Node / pnpm            | Node 24.18.0; pnpm 12.4.2 verified from the workspace Corepack cache. Package downloads still fail npm DNS.                                                                                    |
+| Python / uv            | Managed Python 3.13.16 found; API .venv created with it. System Python 3.14.7; uv 0.13.4. Makefile no longer hides host-managed installs.                                                      |
+| Pinned versions file   | docs/VERSIONS.md (installed tools distinguished from uninstalled direct pins)                                                                                                                  |
+| Registry access        | npm, PyPI and files.pythonhosted.org downloads fail DNS. Cached registry metadata is sufficient for make lock, not package installation.                                                       |
+| Git                    | No `.git` repository supplied; no commits created                                                                                                                                              |
 
 ## Phases
 
-| Phase | Title | Status | Date | Notes |
-|---|---|---|---|---|
-| 01 | Bootstrap | IN-PROGRESS | 2026-10-21 | Scaffolds, Compose, CI, tests, 11 ADRs and inventory written. Python/pnpm found; make lock passed for both ecosystems. Dependency downloads, generated contracts and runtime checks remain blocked. |
-| 02 | Identity, hierarchy, operations, RBAC, audit foundation | NOT-STARTED | | |
-| 03 | Web shell, design system, auth UI | NOT-STARTED | | |
-| 04 | Incidents backend | NOT-STARTED | | |
-| 05 | Realtime + incidents web UI (M1) | NOT-STARTED | | |
-| 06 | Object storage, worker, attachments | NOT-STARTED | | |
-| 07 | Geospatial backend + web map | NOT-STARTED | | |
-| 08 | Agents, teams, devices, tracking, realtime map (M2) | NOT-STARTED | | |
-| 09 | Mobile shell, auth, map, tracking, online incidents (M3) | NOT-STARTED | | |
-| 10 | Offline: SQLite, outbox, location buffer (M4) | NOT-STARTED | | |
-| 11 | Sync matrices, reports, dashboard | NOT-STARTED | | |
-| 12 | Notifications, geofencing, history playback | NOT-STARTED | | |
-| 13 | Hardening: observability, load, security, privacy | NOT-STARTED | | |
-| 14 | Documentation, final validation (M5) | NOT-STARTED | | |
+| Phase | Title                                                    | Status      | Date       | Notes                                                                                                                                                                                               |
+| ----- | -------------------------------------------------------- | ----------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 01    | Bootstrap                                                | IN-PROGRESS | 2026-10-21 | Scaffolds, Compose, CI, tests, 11 ADRs and inventory written. Python/pnpm found; make lock passed for both ecosystems. Dependency downloads, generated contracts and runtime checks remain blocked. |
+| 02    | Identity, hierarchy, operations, RBAC, audit foundation  | NOT-STARTED |            |                                                                                                                                                                                                     |
+| 03    | Web shell, design system, auth UI                        | NOT-STARTED |            |                                                                                                                                                                                                     |
+| 04    | Incidents backend                                        | NOT-STARTED |            |                                                                                                                                                                                                     |
+| 05    | Realtime + incidents web UI (M1)                         | NOT-STARTED |            |                                                                                                                                                                                                     |
+| 06    | Object storage, worker, attachments                      | NOT-STARTED |            |                                                                                                                                                                                                     |
+| 07    | Geospatial backend + web map                             | NOT-STARTED |            |                                                                                                                                                                                                     |
+| 08    | Agents, teams, devices, tracking, realtime map (M2)      | NOT-STARTED |            |                                                                                                                                                                                                     |
+| 09    | Mobile shell, auth, map, tracking, online incidents (M3) | NOT-STARTED |            |                                                                                                                                                                                                     |
+| 10    | Offline: SQLite, outbox, location buffer (M4)            | NOT-STARTED |            |                                                                                                                                                                                                     |
+| 11    | Sync matrices, reports, dashboard                        | NOT-STARTED |            |                                                                                                                                                                                                     |
+| 12    | Notifications, geofencing, history playback              | NOT-STARTED |            |                                                                                                                                                                                                     |
+| 13    | Hardening: observability, load, security, privacy        | NOT-STARTED |            |                                                                                                                                                                                                     |
+| 14    | Documentation, final validation (M5)                     | NOT-STARTED |            |                                                                                                                                                                                                     |
 
 ## Requirement status
 
 One row per expanded SPEC requirement. Multiple classes retain every evidence obligation. No requirement is DONE.
 
 ```text
-AUTHZ-01 | AUTO | NOT-STARTED | 
-AUTHZ-02 | AUTO | NOT-STARTED | 
-AUTHZ-03 | AUTO | NOT-STARTED | 
-AUTH-01 | AUTO | NOT-STARTED | 
-AUTH-02 | AUTO | NOT-STARTED | 
-AUTH-03 | AUTO | NOT-STARTED | 
-AUTH-04 | AUTO | NOT-STARTED | 
-AUTH-05 | EMU+DEVICE | NOT-STARTED | 
-AUTH-06 | MANUAL | NOT-STARTED | 
-ADM-01 | AUTO | NOT-STARTED | 
-ADM-02 | AUTO | NOT-STARTED | 
-ADM-03 | AUTO | NOT-STARTED | 
-ADM-04 | AUTO | NOT-STARTED | 
-ADM-05 | AUTO | NOT-STARTED | 
-OPS-01 | AUTO | NOT-STARTED | 
-OPS-02 | EMU | NOT-STARTED | 
-INC-01 | AUTO | NOT-STARTED | 
-INC-02 | AUTO | NOT-STARTED | 
-INC-03 | AUTO | NOT-STARTED | 
-INC-04 | AUTO | NOT-STARTED | 
-INC-05 | AUTO | NOT-STARTED | 
-INC-06 | AUTO | NOT-STARTED | 
-INC-07 | AUTO | NOT-STARTED | 
-INC-08 | EMU | NOT-STARTED | 
-ATT-01 | AUTO | NOT-STARTED | 
-ATT-02 | DEVICE | NOT-STARTED | 
-GEO-01 | AUTO | NOT-STARTED | 
-GEO-02 | AUTO | NOT-STARTED | 
-GEO-03 | AUTO | NOT-STARTED | 
-GEO-04 | EMU | NOT-STARTED | 
-GEO-05 | EMU | NOT-STARTED | 
-GEO-06 | EMU | NOT-STARTED | 
-GEO-07 | MANUAL | NOT-STARTED | 
-AGT-01 | AUTO | NOT-STARTED | 
-TRK-01 | AUTO | NOT-STARTED | 
-TRK-02 | AUTO | NOT-STARTED | 
-TRK-03 | AUTO | NOT-STARTED | 
-TRK-04 | AUTO | NOT-STARTED | 
-TRK-05 | AUTO | NOT-STARTED | 
-TRK-06 | EMU+DEVICE | NOT-STARTED | 
-TRK-07 | DEVICE | NOT-STARTED | 
-TRK-08 | DEVICE | NOT-STARTED | 
-TRK-09 | AUTO | NOT-STARTED | 
-TRK-10 | EMU | NOT-STARTED | 
-PRIV-01 | MANUAL | NOT-STARTED | 
-RT-01 | AUTO | NOT-STARTED | 
-RT-02 | AUTO | NOT-STARTED | 
-RT-03 | AUTO | NOT-STARTED | 
-RT-04 | EMU | NOT-STARTED | 
-SYN-01 | AUTO | NOT-STARTED | 
-SYN-02 | EMU | NOT-STARTED | 
-REP-01 | AUTO | NOT-STARTED | 
-REP-02 | AUTO | NOT-STARTED | 
-REP-03 | AUTO | NOT-STARTED | 
-DASH-01 | EMU | NOT-STARTED | 
-AUD-01 | AUTO | NOT-STARTED | 
-AUD-02 | EMU | NOT-STARTED | 
-NOT-01 | AUTO | NOT-STARTED | 
-NOT-02 | DEVICE | NOT-STARTED | 
-GEF-01 | AUTO | NOT-STARTED | 
-MOB-01 | EMU | NOT-STARTED | 
-MOB-02 | EMU | NOT-STARTED | 
-MOB-03 | EMU | NOT-STARTED | 
-MOB-04 | MANUAL | NOT-STARTED | 
-MOB-05 | AUTO | NOT-STARTED | 
-OFF-01 | AUTO | NOT-STARTED | 
-OFF-02 | AUTO | NOT-STARTED | 
-OFF-03 | AUTO | NOT-STARTED | 
-OFF-04 | EMU+DEVICE | NOT-STARTED | 
+AUTHZ-01 | AUTO | NOT-STARTED |
+AUTHZ-02 | AUTO | NOT-STARTED |
+AUTHZ-03 | AUTO | NOT-STARTED |
+AUTH-01 | AUTO | NOT-STARTED |
+AUTH-02 | AUTO | NOT-STARTED |
+AUTH-03 | AUTO | NOT-STARTED |
+AUTH-04 | AUTO | NOT-STARTED |
+AUTH-05 | EMU+DEVICE | NOT-STARTED |
+AUTH-06 | MANUAL | NOT-STARTED |
+ADM-01 | AUTO | NOT-STARTED |
+ADM-02 | AUTO | NOT-STARTED |
+ADM-03 | AUTO | NOT-STARTED |
+ADM-04 | AUTO | NOT-STARTED |
+ADM-05 | AUTO | NOT-STARTED |
+OPS-01 | AUTO | NOT-STARTED |
+OPS-02 | EMU | NOT-STARTED |
+INC-01 | AUTO | NOT-STARTED |
+INC-02 | AUTO | NOT-STARTED |
+INC-03 | AUTO | NOT-STARTED |
+INC-04 | AUTO | NOT-STARTED |
+INC-05 | AUTO | NOT-STARTED |
+INC-06 | AUTO | NOT-STARTED |
+INC-07 | AUTO | NOT-STARTED |
+INC-08 | EMU | NOT-STARTED |
+ATT-01 | AUTO | NOT-STARTED |
+ATT-02 | DEVICE | NOT-STARTED |
+GEO-01 | AUTO | NOT-STARTED |
+GEO-02 | AUTO | NOT-STARTED |
+GEO-03 | AUTO | NOT-STARTED |
+GEO-04 | EMU | NOT-STARTED |
+GEO-05 | EMU | NOT-STARTED |
+GEO-06 | EMU | NOT-STARTED |
+GEO-07 | MANUAL | NOT-STARTED |
+AGT-01 | AUTO | NOT-STARTED |
+TRK-01 | AUTO | NOT-STARTED |
+TRK-02 | AUTO | NOT-STARTED |
+TRK-03 | AUTO | NOT-STARTED |
+TRK-04 | AUTO | NOT-STARTED |
+TRK-05 | AUTO | NOT-STARTED |
+TRK-06 | EMU+DEVICE | NOT-STARTED |
+TRK-07 | DEVICE | NOT-STARTED |
+TRK-08 | DEVICE | NOT-STARTED |
+TRK-09 | AUTO | NOT-STARTED |
+TRK-10 | EMU | NOT-STARTED |
+PRIV-01 | MANUAL | NOT-STARTED |
+RT-01 | AUTO | NOT-STARTED |
+RT-02 | AUTO | NOT-STARTED |
+RT-03 | AUTO | NOT-STARTED |
+RT-04 | EMU | NOT-STARTED |
+SYN-01 | AUTO | NOT-STARTED |
+SYN-02 | EMU | NOT-STARTED |
+REP-01 | AUTO | NOT-STARTED |
+REP-02 | AUTO | NOT-STARTED |
+REP-03 | AUTO | NOT-STARTED |
+DASH-01 | EMU | NOT-STARTED |
+AUD-01 | AUTO | NOT-STARTED |
+AUD-02 | EMU | NOT-STARTED |
+NOT-01 | AUTO | NOT-STARTED |
+NOT-02 | DEVICE | NOT-STARTED |
+GEF-01 | AUTO | NOT-STARTED |
+MOB-01 | EMU | NOT-STARTED |
+MOB-02 | EMU | NOT-STARTED |
+MOB-03 | EMU | NOT-STARTED |
+MOB-04 | MANUAL | NOT-STARTED |
+MOB-05 | AUTO | NOT-STARTED |
+OFF-01 | AUTO | NOT-STARTED |
+OFF-02 | AUTO | NOT-STARTED |
+OFF-03 | AUTO | NOT-STARTED |
+OFF-04 | EMU+DEVICE | NOT-STARTED |
 OBS-01 | AUTO | IN-PROGRESS | Logging/health/readiness source and tests written; runtime tests NOT RUN (L-111..112); metrics/OTel are Phase 13.
-SEC-01 | AUTO | NOT-STARTED | 
-SEC-02 | AUTO | NOT-STARTED | 
-PERF-01 | AUTO | NOT-STARTED | 
-PERF-02 | MANUAL | NOT-STARTED | 
+SEC-01 | AUTO | NOT-STARTED |
+SEC-02 | AUTO | NOT-STARTED |
+PERF-01 | AUTO | NOT-STARTED |
+PERF-02 | MANUAL | NOT-STARTED |
 DX-01 | AUTO | IN-PROGRESS | Real Python/JS locks validated by make lock; setup/verify fail downloading packages. Generated schemas remain absent (L-112..114).
-DOC-01 | MANUAL | NOT-STARTED | 
+DOC-01 | MANUAL | NOT-STARTED |
 ```
 
 Phase 01 initial-session evidence (2026-10-21, before resume):
@@ -177,4 +177,4 @@ These results do not verify API/web/mobile behavior. No requirement is DONE and 
 ## Human sign-offs
 
 | Item | Who | Date | Device / env | Result |
-|---|---|---|---|---|
+| ---- | --- | ---- | ------------ | ------ |

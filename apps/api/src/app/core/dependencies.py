@@ -21,8 +21,9 @@ class DependencyProbe:
         self.settings = settings
 
     async def database(self) -> None:
-        engine = create_async_engine(self.settings.database_url.get_secret_value(),
-                                     pool_pre_ping=True, hide_parameters=True)
+        engine = create_async_engine(
+            self.settings.database_url.get_secret_value(), pool_pre_ping=True, hide_parameters=True
+        )
         try:
             async with engine.connect() as connection:
                 await connection.execute(text("SELECT 1"))
@@ -30,8 +31,10 @@ class DependencyProbe:
             await engine.dispose()
 
     async def redis(self) -> None:
-        client = Redis.from_url(self.settings.redis_url.get_secret_value(),
-                                             socket_timeout=self.settings.readiness_timeout_s)
+        client = Redis.from_url(
+            self.settings.redis_url.get_secret_value(),
+            socket_timeout=self.settings.readiness_timeout_s,
+        )
         try:
             await client.ping()
         finally:
@@ -40,13 +43,17 @@ class DependencyProbe:
     async def storage(self) -> None:
         def head_bucket() -> None:
             with boto3.session.Session().client(
-                "s3", endpoint_url=self.settings.storage_endpoint,
+                "s3",
+                endpoint_url=self.settings.storage_endpoint,
                 aws_access_key_id=self.settings.storage_access_key.get_secret_value(),
                 aws_secret_access_key=self.settings.storage_secret_key.get_secret_value(),
                 region_name=self.settings.storage_region,
-                config=Config(connect_timeout=self.settings.readiness_timeout_s,
-                              read_timeout=self.settings.readiness_timeout_s,
-                              retries={"max_attempts": 0}, s3={"addressing_style": "path"}),
+                config=Config(
+                    connect_timeout=self.settings.readiness_timeout_s,
+                    read_timeout=self.settings.readiness_timeout_s,
+                    retries={"max_attempts": 0},
+                    s3={"addressing_style": "path"},
+                ),
             ) as client:
                 client.head_bucket(Bucket=self.settings.storage_bucket)
 

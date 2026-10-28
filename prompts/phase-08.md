@@ -7,6 +7,7 @@
 ## Tasks
 
 Backend
+
 1. Migrations: teams, agents, devices (hash of app install ID), `agent_locations` (monthly partitions + maintenance job), `agent_latest_location`, per-operation tracking policy in `operations.settings` with the DECISIONS defaults and validation.
 2. CRUD for teams/agents/devices, agent↔team, device registration/revocation (revoked device cannot ingest), agent status updates (`agent.status.updated`).
 3. `POST …/tracking/locations/batch`: all validations from DECISIONS (limits, future timestamps, accuracy, device↔agent↔operation association, membership), per-point result, `ON CONFLICT DO NOTHING` dedupe, skew correction, latest-location upsert only if newer, Redis latest state, ephemeral `agent.location.updated` publish after commit. Rate limit per device. **No raw coordinates in INFO logs.**
@@ -14,9 +15,7 @@ Backend
 5. History endpoint (bounded window/points, downsampling, cursor) with CHIEF+ authorization and an audit event per access (agent, window, no coordinates). Retention job dropping expired partitions.
 6. `tools/sim-device`: clearly labeled **development tool** that authenticates as an agent and posts realistic paths (walk/drive), supports offline bursts and out-of-order/duplicate points to exercise the pipeline. It is a test harness, not product behavior.
 
-Web
-7. Agents list/detail (`/operations/[id]/agents[/agentId]`) and teams page: search, filters (team, status, tracking state), team/agent management for CHIEF+.
-8. Map: agent layer with team/status/tracking-state styling (icon + text in tooltip, not color alone), incremental `setData` with ≤ 4 Hz throttling, clustering, snapshot on (re)connect, follow-agent mode, agent details panel, filters.
+Web 7. Agents list/detail (`/operations/[id]/agents[/agentId]`) and teams page: search, filters (team, status, tracking state), team/agent management for CHIEF+. 8. Map: agent layer with team/status/tracking-state styling (icon + text in tooltip, not color alone), incremental `setData` with ≤ 4 Hz throttling, clustering, snapshot on (re)connect, follow-agent mode, agent details panel, filters.
 
 ## Tests
 
