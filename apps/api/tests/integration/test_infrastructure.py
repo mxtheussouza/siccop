@@ -59,14 +59,17 @@ def infrastructure() -> Iterator[tuple[Settings, DockerContainer]]:
             storage_secret_key=SecretStr("integration-secret"),
             storage_bucket="integration-bucket",
         )
-        with boto3.client(
+        client = boto3.client(
             "s3",
             endpoint_url=config.storage_endpoint,
-            aws_access_key_id="integration-key",
-            aws_secret_access_key="integration-secret",
+            aws_access_key_id=config.storage_access_key.get_secret_value(),
+            aws_secret_access_key=config.storage_secret_key.get_secret_value(),
             region_name="us-east-1",
-        ) as client:
+        )
+        try:
             client.create_bucket(Bucket=config.storage_bucket)
+        finally:
+            client.close()
         yield config, redis
 
 
@@ -109,7 +112,8 @@ async def test_postgis_migration_and_readiness_redis_outage(
         transport=ASGITransport(app=create_app(settings)), base_url="http://test"
     ) as client:
         assert (await client.get("/ready")).status_code == 200
-        await asyncio.to_thread(redis.stop)
+        # Stop without removing; the fixture still owns container removal.
+        await asyncio.to_thread(redis.get_wrapped_container().stop)
         response = await client.get("/ready")
         assert response.status_code == 503
         assert response.json()["code"] == "DEPENDENCY_UNAVAILABLE"
