@@ -29,22 +29,22 @@ Operation statuses: `PLANNED → ACTIVE ⇄ SUSPENDED → COMPLETED → ARCHIVED
 
 Roles: `ADMINISTRATOR` (organization-scoped, global role), and per-operation `CHIEF`, `OPERATOR`, `OBSERVER` via `OperationMembership`. A user may be CHIEF in one operation and OBSERVER in another. An ADMINISTRATOR has implicit CHIEF-level access to all operations of their organization; every such access to location history is audited.
 
-| Capability | OBSERVER | OPERATOR | CHIEF | ADMIN |
-|---|:-:|:-:|:-:|:-:|
-| View map, agents (live), incidents, POIs/routes/areas, sync matrices, reports | ✔ | ✔ | ✔ | ✔ |
-| Create / edit incident, register action, capture, acknowledge, start, resolve | – | ✔ | ✔ | ✔ |
-| Assign team/agent to incident | – | ✔ | ✔ | ✔ |
-| Close / cancel / reopen incident | – | – | ✔ | ✔ |
-| Create/edit/delete POI, route, area | – | ✔ | ✔ | ✔ |
-| Import / delete geospatial layers | – | – | ✔ | ✔ |
-| Manage teams, agent↔team, devices | – | – | ✔ | ✔ |
-| Create/edit sync actions, change status | – | ✔ | ✔ | ✔ |
-| Create/delete matrix, clone matrix | – | – | ✔ | ✔ |
-| Draft situation report | – | ✔ | ✔ | ✔ |
-| Finalize situation report | – | – | ✔ | ✔ |
-| Location **history** / playback | – | – | ✔ | ✔ (audited) |
-| Manage users, organizations, command centers, operations, memberships, settings, audit viewer | – | – | – | ✔ |
-| Operation config (tracking policy, thresholds) | – | – | ✔ | ✔ |
+| Capability                                                                                    | OBSERVER | OPERATOR | CHIEF |    ADMIN     |
+| --------------------------------------------------------------------------------------------- | :------: | :------: | :---: | :----------: |
+| View map, agents (live), incidents, POIs/routes/areas, sync matrices, reports                 |    ✔    |    ✔    |  ✔   |      ✔      |
+| Create / edit incident, register action, capture, acknowledge, start, resolve                 |    –     |    ✔    |  ✔   |      ✔      |
+| Assign team/agent to incident                                                                 |    –     |    ✔    |  ✔   |      ✔      |
+| Close / cancel / reopen incident                                                              |    –     |    –     |  ✔   |      ✔      |
+| Create/edit/delete POI, route, area                                                           |    –     |    ✔    |  ✔   |      ✔      |
+| Import / delete geospatial layers                                                             |    –     |    –     |  ✔   |      ✔      |
+| Manage teams, agent↔team, devices                                                            |    –     |    –     |  ✔   |      ✔      |
+| Create/edit sync actions, change status                                                       |    –     |    ✔    |  ✔   |      ✔      |
+| Create/delete matrix, clone matrix                                                            |    –     |    –     |  ✔   |      ✔      |
+| Draft situation report                                                                        |    –     |    ✔    |  ✔   |      ✔      |
+| Finalize situation report                                                                     |    –     |    –     |  ✔   |      ✔      |
+| Location **history** / playback                                                               |    –     |    –     |  ✔   | ✔ (audited) |
+| Manage users, organizations, command centers, operations, memberships, settings, audit viewer |    –     |    –     |   –   |      ✔      |
+| Operation config (tracking policy, thresholds)                                                |    –     |    –     |  ✔   |      ✔      |
 
 - `AUTHZ-01 [A]` Matrix enforced server-side by one policy layer; table-driven test covers every cell.
 - `AUTHZ-02 [A]` Unauthenticated → 401; non-member → 403; insufficient role → 403.
@@ -91,12 +91,12 @@ REPORTED → ACKNOWLEDGED → ASSIGNED → IN_PROGRESS → RESOLVED → CLOSED
 
 Allowed forward skips: none, except `REPORTED → ASSIGNED` when assignment is made directly (implies acknowledge; two transitions recorded atomically). `CLOSED` and `CANCELLED` are terminal. Each transition requires `reason` where the table below says so and records an `IncidentTransition`.
 
-| To | Min role | Reason |
-|---|---|---|
+| To                                            | Min role | Reason   |
+| --------------------------------------------- | -------- | -------- |
 | ACKNOWLEDGED, ASSIGNED, IN_PROGRESS, RESOLVED | OPERATOR | optional |
-| CLOSED | CHIEF | optional |
-| CANCELLED | CHIEF | required |
-| reopen (RESOLVED→IN_PROGRESS) | CHIEF | required |
+| CLOSED                                        | CHIEF    | optional |
+| CANCELLED                                     | CHIEF    | required |
+| reopen (RESOLVED→IN_PROGRESS)                 | CHIEF    | required |
 
 **Capture (claim):** atomic, exactly-one-winner. Loser gets `409 INCIDENT_ALREADY_CLAIMED`. Release by claimer or CHIEF. Capture is independent of assignment.
 
@@ -109,6 +109,7 @@ Allowed forward skips: none, except `REPORTED → ASSIGNED` when assignment is m
 ## 6. Requirements
 
 ### Identity and administration
+
 - `AUTH-01 [A]` Login/logout/refresh with rotating refresh tokens; reuse of an old refresh token revokes the whole token family.
 - `AUTH-02 [A]` Argon2id hashing; password change revokes other sessions; account disable blocks login and refresh immediately.
 - `AUTH-03 [A]` Short-lived access token; revocation via `token_version`.
@@ -119,6 +120,7 @@ Allowed forward skips: none, except `REPORTED → ASSIGNED` when assignment is m
 - `OPS-01 [A]` Operation lifecycle with validated transitions; `OPS-02 [E]` operation selector gates all operational routes.
 
 ### Incidents
+
 - `INC-01 [A]` Create (web list, web map context action, mobile) with idempotency key.
 - `INC-02 [A]` Server-validated state machine; invalid transition → 409 `INVALID_TRANSITION`; every transition recorded.
 - `INC-03 [A]` Atomic capture; N concurrent attempts → exactly one 2xx, N−1 409. Test with real PostgreSQL.
@@ -131,6 +133,7 @@ Allowed forward skips: none, except `REPORTED → ASSIGNED` when assignment is m
 - `ATT-02 [D]` Camera and photo library on both OSes with separate permissions; client-side compression.
 
 ### Geospatial
+
 - `GEO-01 [A]` POI/route/area CRUD with validation (valid geometry, coordinate range, size caps) and optimistic locking.
 - `GEO-02 [A]` Queries in PostGIS with GiST indexes: agents within radius, nearest N agents, incidents in bbox, objects inside area, tracks intersecting area. Plan check (`EXPLAIN`) asserts index use.
 - `GEO-03 [A]` KML/GeoJSON import; KMZ import (see DECISIONS §Imports security); MIME/magic-byte validation; size/feature caps; deletion cascades to layer + features.
@@ -140,6 +143,7 @@ Allowed forward skips: none, except `REPORTED → ASSIGNED` when assignment is m
 - `GEO-07 [M]` Base layers street/satellite/topographic/hybrid driven by configuration; missing provider config hides that layer rather than failing; no credentials in repo.
 
 ### Agents, devices, tracking
+
 - `AGT-01 [A]` Agent/Team/Device CRUD and associations; device registration and revocation.
 - `TRK-01 [A]` Batch ingest endpoint with per-point result (`accepted|duplicate|rejected(reason)`), idempotent by `(device_id, recorded_at)`; max batch and payload size enforced; rejects future timestamps beyond tolerance, bad coordinates, bad accuracy, non-member, device not associated.
 - `TRK-02 [A]` Clock-skew correction per DECISIONS; flagged on the row.
@@ -154,6 +158,7 @@ Allowed forward skips: none, except `REPORTED → ASSIGNED` when assignment is m
 - `PRIV-01 [M]` Tracking indicator always visible on mobile while tracking; consent/explanation before OS permission prompt; privacy notice document; history access restricted (CHIEF+) and audited.
 
 ### Realtime
+
 - `RT-01 [A]` Authenticated WS per operation; membership checked on connect and re-checked on role/membership change (server closes with 4403).
 - `RT-02 [A]` Event envelope and catch-up per DECISIONS §Realtime; client reconnect with `last_event_id` replays missed events or receives `resync.required`.
 - `RT-03 [A]` No global broadcast; event routing tests prove isolation between operations.
@@ -162,6 +167,7 @@ Allowed forward skips: none, except `REPORTED → ASSIGNED` when assignment is m
 Event catalog (names fixed): `agent.location.updated`, `agent.status.updated`, `incident.created|updated|assigned|status.changed|claimed|released`, `incident.action.created`, `poi.created|updated|deleted`, `route.created|updated|deleted`, `area.created|updated|deleted`, `sync.action.created|updated|status_changed`, `notification.created`, `geofence.entered|exited`, `layer.created|deleted`, `resync.required`.
 
 ### Synchronization, reports, dashboard, audit
+
 - `SYN-01 [A]` Matrix and action CRUD, clone (deep copy with new ids and shifted/unchanged dates option), filter, status changes via state machine.
 - `SYN-02 [E]` Timeline view of actions with inspect panel.
 - `REP-01 [A]` Reports from real queries: incident report, incident history, agent activity, operational timeline, situation report.
@@ -172,11 +178,13 @@ Event catalog (names fixed): `agent.location.updated`, `agent.status.updated`, `
 - `AUD-02 [E]` Admin audit viewer with filters and pagination.
 
 ### Notifications and geofencing
+
 - `NOT-01 [A]` In-app notifications persisted and pushed over WS; read/unread.
 - `NOT-02 [D]` Push via Expo Notifications on both OSes; permission requested with context, not at launch.
 - `GEF-01 [A]` Entered/exited events computed with PostGIS on latest point; hysteresis + cooldown stored in Redis; one event per transition; storm prevention tested.
 
 ### Mobile application
+
 - `MOB-01 [E]` Tabs: Mapa, Incidentes, Operação, Alertas, Perfil (Expo Router).
 - `MOB-02 [E]` Map screen: own position, assigned/nearby incidents, team context, POIs, routes, areas, layers, filters, new-incident, center-on-me, tracking status.
 - `MOB-03 [E]` Incident cards (priority, status, distance, assignment, timestamp) and detail (header, status, map, description, assignment, actions, attachments, timeline), bottom sheets.
@@ -188,6 +196,7 @@ Event catalog (names fixed): `agent.location.updated`, `agent.status.updated`, `
 - `OFF-04 [E]` Offline → create incident/action → reconnect → exactly one server record. `[D]` on Android and iOS.
 
 ### Platform quality
+
 - `OBS-01 [A]` Structured logs, correlation IDs, `/health` (liveness) and `/ready` (DB + Redis + storage), Prometheus metrics (request latency, error rate, active WS, location updates/s, incident events/s, DB pool, Redis status, worker failures), OpenTelemetry hooks.
 - `SEC-01 [A]` Secure headers, CORS allowlist, rate limits, input validation, signed URLs, dependency scan in CI, secrets isolation.
 - `SEC-02 [A]` No public tracking endpoint, WS or feed; coordinates not logged at INFO; location retention enforced.
@@ -197,6 +206,7 @@ Event catalog (names fixed): `agent.location.updated`, `agent.status.updated`, `
 - `DOC-01 [M]` Docs, ADRs 001–008, Mermaid diagrams (system, domain, realtime, tracking, offline sync, incident lifecycle).
 
 ## 7. API conventions
+
 - Base `/api/v1`. Operation-scoped routes under `/operations/{operation_id}/…`.
 - Mutating endpoints used by offline clients accept `Idempotency-Key`.
 - Lists: cursor pagination `?cursor=&limit=` (default 50, max 200) with `next_cursor`.
@@ -204,7 +214,9 @@ Event catalog (names fixed): `agent.location.updated`, `agent.status.updated`, `
 - Representative endpoints are listed in the original brief and must exist: auth (login/refresh/logout), operations, agents, tracking batch, incidents (+transitions, actions, claim), pois, routes, areas, synchronization-matrices.
 
 ## 8. Development seed (dev only)
+
 1 organization, 1 command center, 1 ACTIVE operation, users `admin@example.test`, `chief@example.test`, `operator@example.test`, `observer@example.test` (passwords documented in README, refused when `APP_ENV=production`), teams, agents, devices, incidents in several states, POIs, routes, areas (one geofenced), 1 sync matrix with actions.
 
 ## 9. Definition of done (product)
+
 A developer can: clone → configure `.env` → `make infra-up migrate seed` → run api/web/mobile → log in → select operation → open map → create POI/route/area → create incident → see it in a second browser live → claim/assign/act → (simulated device) see agent move → run offline scenario on emulator → view history/playback → use matrix → generate reports → verify role limits → inspect audit. Items marked `[D]` are complete only when their checklists in `docs/mobile/` are ticked by a human on real Android and iOS devices.

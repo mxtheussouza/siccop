@@ -43,10 +43,15 @@ class CorrelationMiddleware:
             logger.error("unhandled_request_error")
             if started:
                 raise
-            response = problem_response(request, ApplicationError(
-                status=500, code="INTERNAL_ERROR", title="Internal error",
-                detail="The request could not be completed",
-            ))
+            response = problem_response(
+                request,
+                ApplicationError(
+                    status=500,
+                    code="INTERNAL_ERROR",
+                    title="Internal error",
+                    detail="The request could not be completed",
+                ),
+            )
             await response(scope, receive, send_with_headers)
         finally:
             structlog.contextvars.reset_contextvars(**tokens)

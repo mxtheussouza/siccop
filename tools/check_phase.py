@@ -1,4 +1,5 @@
 """Check Phase 01 source completeness without claiming runtime verification."""
+
 import json
 import re
 from pathlib import Path
@@ -14,7 +15,7 @@ def requirement_classes(specification: str) -> dict[str, tuple[str, ...]]:
         for index, match in enumerate(matches):
             prefix, start, end, primary = match.groups()
             stop = matches[index + 1].start() if index + 1 < len(matches) else len(line)
-            suffix = line[match.end():stop]
+            suffix = line[match.end() : stop]
             tags = [primary, *re.findall(r"`?\[([AEDM])\]`?", suffix)]
             for number in range(int(start), int(end or start) + 1):
                 result[f"{prefix}-{number:02}"] = tuple(dict.fromkeys(classes[tag] for tag in tags))
@@ -44,7 +45,7 @@ def check(root: Path) -> list[str]:
                 if f"## {section}" not in content:
                     failures.append(f"Missing {section} in ADR-{number:03}")
     for path in root.glob("**/package.json"):
-        if any(part in {"node_modules", ".next", ".cache"} for part in path.parts):
+        if any(part in {"node_modules", ".next", ".cache", ".venv", "dist"} for part in path.parts):
             continue
         manifest = json.loads(path.read_text())
         for section in ("dependencies", "devDependencies"):

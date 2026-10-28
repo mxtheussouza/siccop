@@ -1,12 +1,11 @@
 import json
 
 import pytest
-from fastapi import HTTPException
-from fastapi.testclient import TestClient
-
 from app.core.config import Settings
 from app.core.dependencies import DependencyStatus
 from app.main import create_app
+from fastapi import HTTPException
+from fastapi.testclient import TestClient
 
 
 def test_health_is_liveness_without_infrastructure(settings: Settings) -> None:
@@ -31,8 +30,11 @@ def test_error_contract_for_unknown_route(settings: Settings) -> None:
         response = client.get("/does-not-exist")
     assert response.status_code == 404
     assert response.json() == {
-        "type": "not_found", "title": "Request failed", "status": 404,
-        "detail": "The request could not be completed", "code": "NOT_FOUND",
+        "type": "not_found",
+        "title": "Request failed",
+        "status": 404,
+        "detail": "The request could not be completed",
+        "code": "NOT_FOUND",
         "correlation_id": response.headers["X-Correlation-ID"],
     }
 
@@ -84,8 +86,9 @@ def test_http_errors_use_problem_format(settings: Settings, status: int) -> None
 @pytest.mark.parametrize("failed", [None, "database", "redis", "storage"])
 def test_readiness_status_and_problem_format(settings: Settings, failed: str | None) -> None:
     async def check() -> dict[str, DependencyStatus]:
-        return {name: "down" if name == failed else "up"
-                for name in ("database", "redis", "storage")}
+        return {
+            name: "down" if name == failed else "up" for name in ("database", "redis", "storage")
+        }
 
     with TestClient(create_app(settings, readiness_check=check)) as client:
         response = client.get("/ready")
@@ -96,12 +99,17 @@ def test_readiness_status_and_problem_format(settings: Settings, failed: str | N
         assert response.json()["dependencies"] == {"database": "up", "redis": "up", "storage": "up"}
 
 
-def test_structured_request_logs_do_not_include_secrets(settings: Settings,
-                                                       capsys: pytest.CaptureFixture[str]) -> None:
+def test_structured_request_logs_do_not_include_secrets(
+    settings: Settings, capsys: pytest.CaptureFixture[str]
+) -> None:
     with TestClient(create_app(settings)) as client:
-        client.get("/health?latitude=12.345&ticket=secret", headers={
-            "Authorization": "Bearer token-secret", "X-Correlation-ID": "safe-id",
-        })
+        client.get(
+            "/health?latitude=12.345&ticket=secret",
+            headers={
+                "Authorization": "Bearer token-secret",
+                "X-Correlation-ID": "safe-id",
+            },
+        )
     log = capsys.readouterr().err
     events = [json.loads(line) for line in log.splitlines() if line.startswith("{")]
     assert any(event.get("correlation_id") == "safe-id" for event in events)

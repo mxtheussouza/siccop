@@ -4,7 +4,9 @@
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
-    "skipLibCheck": false,
+    // Expo default: React Native, expo-router and config-plugins ship .d.ts files that fail
+    // full library checking (91 errors, none in app code). App sources stay strict. See L-122.
+    "skipLibCheck": true,
     "noEmit": true,
     "resolveJsonModule": true,
     "types": ["jest", "node", "react"]

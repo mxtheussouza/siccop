@@ -12,24 +12,24 @@ These close the gaps left open in the original brief. Do not re-open them withou
 
 ## Backend stack choices
 
-| Concern | Choice |
-|---|---|
-| Package/venv | `uv` |
-| Password hashing | `argon2-cffi` (Argon2id) |
-| Access token | JWT via `PyJWT`, 10 min TTL, `kid` header for key rotation, claims: `sub`, `tv` (token_version), `typ=access` |
-| Refresh token | Opaque random 256-bit, stored hashed (SHA-256) with `family_id`, `parent_id`, `used_at`, `revoked_at`, `expires_at` (default 14 days) |
-| IDs | UUIDv7 (client-generable) |
-| Migrations | Alembic, one linear history, autogenerate then hand-review (GeoAlchemy2 index quirks) |
-| Worker | **Dramatiq** with Redis broker (ADR-008). Rationale: simpler than Celery, good retries/middleware, sufficient for thumbnails, imports, PDF, retention. |
-| Object storage | S3 API via `aioboto3` (or `boto3` in thread); MinIO locally; presigned URLs, 5 min TTL |
-| Rate limiting | Redis token bucket in a dependency; per-IP for auth, per-user for others |
-| Image processing | Pillow in worker (HEIC via `pillow-heif` → JPEG derivative) |
-| MIME sniffing | `python-magic` (libmagic) on bytes; extension and client Content-Type are untrusted |
-| XML | `defusedxml` only. Plain `xml`/`lxml` default parsers are forbidden for untrusted input |
-| Geometry | PostGIS for computation; Shapely only for small validation/serialization tasks |
-| Metrics | `prometheus-client`; OTel via `opentelemetry-instrumentation-fastapi/sqlalchemy/redis` |
-| Load tests | Locust |
-| Typing | Pyright strict on `src/`; third-party gaps handled with stubs in `apps/api/typings/` or narrow, commented `# pyright: ignore[rule]` (GeoAlchemy2/Shapely) |
+| Concern          | Choice                                                                                                                                                    |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Package/venv     | `uv`                                                                                                                                                      |
+| Password hashing | `argon2-cffi` (Argon2id)                                                                                                                                  |
+| Access token     | JWT via `PyJWT`, 10 min TTL, `kid` header for key rotation, claims: `sub`, `tv` (token_version), `typ=access`                                             |
+| Refresh token    | Opaque random 256-bit, stored hashed (SHA-256) with `family_id`, `parent_id`, `used_at`, `revoked_at`, `expires_at` (default 14 days)                     |
+| IDs              | UUIDv7 (client-generable)                                                                                                                                 |
+| Migrations       | Alembic, one linear history, autogenerate then hand-review (GeoAlchemy2 index quirks)                                                                     |
+| Worker           | **Dramatiq** with Redis broker (ADR-008). Rationale: simpler than Celery, good retries/middleware, sufficient for thumbnails, imports, PDF, retention.    |
+| Object storage   | S3 API via `aioboto3` (or `boto3` in thread); MinIO locally; presigned URLs, 5 min TTL                                                                    |
+| Rate limiting    | Redis token bucket in a dependency; per-IP for auth, per-user for others                                                                                  |
+| Image processing | Pillow in worker (HEIC via `pillow-heif` → JPEG derivative)                                                                                               |
+| MIME sniffing    | `python-magic` (libmagic) on bytes; extension and client Content-Type are untrusted                                                                       |
+| XML              | `defusedxml` only. Plain `xml`/`lxml` default parsers are forbidden for untrusted input                                                                   |
+| Geometry         | PostGIS for computation; Shapely only for small validation/serialization tasks                                                                            |
+| Metrics          | `prometheus-client`; OTel via `opentelemetry-instrumentation-fastapi/sqlalchemy/redis`                                                                    |
+| Load tests       | Locust                                                                                                                                                    |
+| Typing           | Pyright strict on `src/`; third-party gaps handled with stubs in `apps/api/typings/` or narrow, commented `# pyright: ignore[rule]` (GeoAlchemy2/Shapely) |
 
 ## Errors
 
@@ -43,9 +43,10 @@ All non-2xx API responses:
   "detail": "Human readable, no internals",
   "code": "INCIDENT_ALREADY_CLAIMED",
   "correlation_id": "…",
-  "errors": [{"field": "…", "message": "…"}]   // validation only
+  "errors": [{ "field": "…", "message": "…" }] // validation only
 }
 ```
+
 `type` ∈ `validation|unauthorized|forbidden|not_found|conflict|rate_limited|not_implemented|internal`. Codes are UPPER_SNAKE and part of the OpenAPI contract. `X-Correlation-ID` is accepted and echoed.
 
 ## Authentication topology
@@ -59,6 +60,7 @@ All non-2xx API responses:
 ## Realtime
 
 - **Event envelope** (all WS messages and all stored events):
+
 ```json
 {
   "event_id": "<redis stream id>",
@@ -70,10 +72,12 @@ All non-2xx API responses:
   "entity_version": 7,
   "schema_version": 1,
   "correlation_id": "…",
-  "payload": { }
+  "payload": {}
 }
 ```
+
 Payloads are **minimal deltas or ids + version**, never large objects; clients refetch details via REST when `entity_version` is ahead of their cache.
+
 - **Transactional outbox:** domain events are inserted into `domain_event_outbox` in the **same DB transaction** as the change. A relay (in the worker, polling with `FOR UPDATE SKIP LOCKED`, interval ≤ 200 ms, or LISTEN/NOTIFY wake-up) publishes to Redis and sets `published_at`. Delivery is at-least-once; consumers dedupe by `event_id`.
 - **Redis Streams** per operation: `ops:{operation_id}:events`, `MAXLEN ~ 10000`. `sequence` is an `INCR` counter `ops:{operation_id}:seq` assigned at publish time. (Pub/Sub is not used for durable events.)
 - **Ephemeral high-rate events** (`agent.location.updated`): published directly after commit to a separate capped stream/channel, **not replayed**; latest state lives in Redis hash `ops:{id}:agents:latest` and in PG `agent_latest_location`. Reconnecting clients take a snapshot.
@@ -92,19 +96,19 @@ Payloads are **minimal deltas or ids + version**, never large objects; clients r
 - **Default tracking policy** (per operation, editable by CHIEF): `minimum_interval_s=10` (moving) / `60` (idle), `minimum_distance_m=15`, `desired_accuracy=balanced` (`high` when agent is ASSIGNED/ON_SCENE), `batch_size=50`, `maximum_offline_buffer=5000`, `stale_threshold_s=120`, `offline_threshold_s=600`, `retention_days=30`, `max_accuracy_m=200`, `geofence_cooldown_s=60`.
 - Tracking state (LIVE/STALE/OFFLINE) is computed by the API from the latest **corrected recorded_at**, using the policy thresholds, and returned with the agent payload.
 - **History:** max window 24 h per request, max 5,000 points per response (server-side downsampling with `ST_SimplifyPreserveTopology`/time bucketing), cursorable.
-- **Geofencing:** evaluated after commit on the *latest accepted point per agent per batch* (not every buffered point) using `ST_Covers` against `geofence_enabled` areas (GiST). State per (agent, area) in Redis + PG; emit only on state change and only if outside `geofence_cooldown_s` since last event for that pair. Offline-replayed points older than 5 min do not emit geofence events (they are history only).
+- **Geofencing:** evaluated after commit on the _latest accepted point per agent per batch_ (not every buffered point) using `ST_Covers` against `geofence_enabled` areas (GiST). State per (agent, area) in Redis + PG; emit only on state change and only if outside `geofence_cooldown_s` since last event for that pair. Offline-replayed points older than 5 min do not emit geofence events (they are history only).
 
 ## Offline (mobile)
 
 **Commands that may be created offline** (everything else requires connectivity and the UI says so):
 
-| command_type | Notes |
-|---|---|
-| `incident.create` | Client UUID; server assigns `reference_number`, reconciled on sync |
-| `incident.action.create` | Append-only; client UUID; `occurred_at` from device clock (skew-corrected on sync) |
-| `incident.attachment.upload` | Depends on parent create; uploaded after parent is synchronized |
-| `incident.transition.request` | Only `ACKNOWLEDGED`, `IN_PROGRESS`, `RESOLVED`; sends `expected_from_status` |
-| `tracking.locations.batch` | Handled by the location buffer (separate table), not the command outbox |
+| command_type                  | Notes                                                                              |
+| ----------------------------- | ---------------------------------------------------------------------------------- |
+| `incident.create`             | Client UUID; server assigns `reference_number`, reconciled on sync                 |
+| `incident.action.create`      | Append-only; client UUID; `occurred_at` from device clock (skew-corrected on sync) |
+| `incident.attachment.upload`  | Depends on parent create; uploaded after parent is synchronized                    |
+| `incident.transition.request` | Only `ACKNOWLEDGED`, `IN_PROGRESS`, `RESOLVED`; sends `expected_from_status`       |
+| `tracking.locations.batch`    | Handled by the location buffer (separate table), not the command outbox            |
 
 Not offline: capture/claim, assignment, close/cancel, map-object edits, reports, admin.
 

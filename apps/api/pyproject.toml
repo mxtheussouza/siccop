@@ -22,8 +22,8 @@ dependencies = [
 dev = [
   "ruff==0.11.8",
   "pyright==1.1.400",
-  "pytest==8.3.5",
-  "pytest-asyncio==0.26.0",
+  "pytest==9.0.3",
+  "pytest-asyncio==1.4.1",
   "pytest-cov==6.1.1",
   "httpx==0.28.1",
   "testcontainers[postgres,redis,minio]==4.10.0",
@@ -46,7 +46,7 @@ line-length = 100
 select = ["E", "F", "I", "UP", "B", "ASYNC", "S"]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**/*.py" = ["S101"] # Pytest assertions are the test API.
+"**/tests/**/*.py" = ["S101"] # Pytest assertions are the test API.
 
 [tool.pyright]
 pythonVersion = "3.13"
