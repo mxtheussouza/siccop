@@ -39,3 +39,8 @@ class Settings(BaseSettings):
             if "*" in self.cors_origins:
                 raise ValueError("Production CORS requires an explicit allowlist")
         return self
+
+
+def load_settings() -> Settings:
+    # Required fields come from environment sources, which pyright cannot see on __init__.
+    return Settings()  # pyright: ignore[reportCallIssue]

@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from app.core.config import Settings
+from app.core.config import Settings, load_settings
 from app.core.dependencies import DependencyProbe, DependencyStatus
 from app.core.errors import ApplicationError, ProblemRead, register_error_handlers
 from app.core.logging import configure_logging
@@ -26,7 +26,7 @@ class ReadyRead(BaseModel):
 def create_app(
     settings: Settings | None = None, readiness_check: ReadinessCheck | None = None
 ) -> FastAPI:
-    config = settings or Settings()
+    config = settings or load_settings()
     configure_logging(config.log_level)
     app = FastAPI(
         title="Operational Platform API",
@@ -48,17 +48,9 @@ def create_app(
     register_error_handlers(app)
     check = readiness_check or DependencyProbe(config).check
 
-    @app.get("/health", response_model=HealthRead, operation_id="get_health", tags=["platform"])
     async def health() -> HealthRead:
         return HealthRead()
 
-    @app.get(
-        "/ready",
-        response_model=ReadyRead,
-        operation_id="get_readiness",
-        tags=["platform"],
-        responses={503: {"model": ProblemRead}},
-    )
     async def ready() -> ReadyRead:
         statuses = await check()
         if set(statuses) != {"database", "redis", "storage"} or any(
@@ -72,4 +64,14 @@ def create_app(
             )
         return ReadyRead(dependencies=statuses)
 
+    app.get("/health", response_model=HealthRead, operation_id="get_health", tags=["platform"])(
+        health
+    )
+    app.get(
+        "/ready",
+        response_model=ReadyRead,
+        operation_id="get_readiness",
+        tags=["platform"],
+        responses={503: {"model": ProblemRead}},
+    )(ready)
     return app

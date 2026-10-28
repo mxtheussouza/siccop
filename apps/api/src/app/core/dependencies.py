@@ -1,6 +1,6 @@
 import asyncio
 from collections.abc import Awaitable, Callable
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 import anyio
 import boto3
@@ -11,6 +11,9 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine
 
 from app.core.config import Settings
+
+if TYPE_CHECKING:
+    from mypy_boto3_s3 import S3Client  # Development-only stubs package.
 
 DependencyStatus = Literal["up", "down"]
 logger = structlog.get_logger()
@@ -31,18 +34,21 @@ class DependencyProbe:
             await engine.dispose()
 
     async def redis(self) -> None:
-        client = Redis.from_url(
+        # redis-py 5 leaves **kwargs untyped; arguments here are explicit and typed by Settings.
+        client = Redis.from_url(  # pyright: ignore[reportUnknownMemberType]
             self.settings.redis_url.get_secret_value(),
             socket_timeout=self.settings.readiness_timeout_s,
         )
         try:
-            await client.ping()
+            # redis-py 5 types ping as Awaitable[Any] | Any; the asyncio client always awaits.
+            await client.ping()  # pyright: ignore[reportUnknownMemberType]
         finally:
             await client.aclose()
 
     async def storage(self) -> None:
         def head_bucket() -> None:
-            client = boto3.session.Session().client(
+            # boto3-stubs only ships the S3 overload here; other service overloads are Unknown.
+            client: S3Client = boto3.session.Session().client(  # pyright: ignore[reportUnknownMemberType]
                 "s3",
                 endpoint_url=self.settings.storage_endpoint,
                 aws_access_key_id=self.settings.storage_access_key.get_secret_value(),

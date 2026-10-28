@@ -46,6 +46,12 @@ class ProblemRead(BaseModel):
 
 
 class ApplicationError(Exception):
+    status: int
+    code: ErrorCode
+    title: str
+    detail: str
+    error_type: ErrorType
+
     def __init__(
         self,
         *,
@@ -79,11 +85,9 @@ def problem_response(
 
 
 def register_error_handlers(app: FastAPI) -> None:
-    @app.exception_handler(ApplicationError)
     async def handle_application(request: Request, error: ApplicationError) -> JSONResponse:
         return problem_response(request, error)
 
-    @app.exception_handler(RequestValidationError)
     async def handle_validation(request: Request, error: RequestValidationError) -> JSONResponse:
         # Never echo inputs or parser context (passwords/tokens/coordinates may be present).
         fields = [
@@ -102,7 +106,6 @@ def register_error_handlers(app: FastAPI) -> None:
             fields,
         )
 
-    @app.exception_handler(HTTPException)
     async def handle_http(request: Request, error: HTTPException) -> JSONResponse:
         types: dict[int, tuple[ErrorType, ErrorCode]] = {
             401: ("unauthorized", "UNAUTHORIZED"),
@@ -124,3 +127,7 @@ def register_error_handlers(app: FastAPI) -> None:
                 error_type=kind,
             ),
         )
+
+    app.exception_handler(ApplicationError)(handle_application)
+    app.exception_handler(RequestValidationError)(handle_validation)
+    app.exception_handler(HTTPException)(handle_http)
