@@ -45,7 +45,7 @@ def check(root: Path) -> list[str]:
                 if f"## {section}" not in content:
                     failures.append(f"Missing {section} in ADR-{number:03}")
     for path in root.glob("**/package.json"):
-        if any(part in {"node_modules", ".next", ".cache"} for part in path.parts):
+        if any(part in {"node_modules", ".next", ".cache", ".venv", "dist"} for part in path.parts):
             continue
         manifest = json.loads(path.read_text())
         for section in ("dependencies", "devDependencies"):
