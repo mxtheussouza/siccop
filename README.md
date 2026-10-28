@@ -2,22 +2,21 @@
 
 An operation-scoped API, web console and Android/iOS field application. Product behavior is defined in [SPEC.md](SPEC.md); engineering rules are in [AGENTS.md](AGENTS.md).
 
-**Phase 01 is in progress.** Dependencies, generated contracts, containers and application builds have not been verified. See [PROGRESS.md](docs/PROGRESS.md) and [LIMITATIONS.md](docs/LIMITATIONS.md). Authentication and operational features are not implemented; the UI explicitly shows that boundary.
+**Phase 01 (bootstrap) is complete.** `make verify` passes on Linux/WSL2 with real PostGIS/Redis/MinIO. Native Android/iOS builds and CI runs have not been performed yet. See [PROGRESS.md](docs/PROGRESS.md) and [LIMITATIONS.md](docs/LIMITATIONS.md). Authentication and operational features are not implemented; the UI explicitly shows that boundary.
 
 ## Prerequisites
 
-- Node 24 LTS (`.nvmrc` records the locally observed 24.18.0), pnpm 12.4.2 and uv 0.13.4.
-- Python 3.13 (uv can provision it). Managed 3.13.16 is now present on the probed host; uv discovers it without overriding its install directory. The system Python 3.14 must not be used for the API.
+- Node 24.18.0 (`.nvmrc`; `engine-strict` rejects other majors), pnpm 12.4.2 via Corepack (`corepack enable pnpm`) and uv 0.13.4.
+- Python 3.13 for the API: `uv python install 3.13.16`. A newer system Python is ignored by the API project.
 - Docker with Compose and a running daemon for real PostGIS/Redis/MinIO integration tests.
 - Network access to npm, PyPI, Python distributions and container registries for initial setup.
 - Full Xcode for native iOS builds/simulator; Android SDK and an emulator for native Android runs.
 
 ## First setup
 
-Both real lock files are present, and `make lock` validates them using cached registry metadata. The application dependencies still require successful downloads. Run the commands below with access to the registries and Docker, review the resolved dependency tree and Expo compatibility, and retain both locks in version control. A passing lock-resolution command does not prove installation or build success.
+Both lock files are committed. Use `make lock` only when changing dependencies.
 
 ```sh
-make lock
 make setup
 make infra-up
 make migrate
@@ -63,7 +62,9 @@ Settings are loaded from `.env` in the current directory. `make migrate` runs fr
 
 The real integration test `test_postgis_migration_and_readiness_redis_outage` migrates a PostGIS container, checks the extension and revision, confirms `/ready` 200, stops Redis, confirms `/ready` 503 and `/health` 200. Unit readiness tests inject a probe to test HTTP mapping only; they do not claim PostgreSQL behavior. No database substitutes are used.
 
-Contracts are exported without connecting to infrastructure. Missing/stale artifacts fail CI. API types must never be handwritten. Infrastructure and generated files cannot be called verified until the network-dependent checks actually run.
+Contracts are exported without connecting to infrastructure. Missing/stale artifacts fail CI. API types must never be handwritten.
+
+Local MinIO uses the archived `bitnamilegacy/minio` image (official MinIO images are no longer published); it is for development and tests only. See `docs/LIMITATIONS.md` L-123.
 
 Optional profiles:
 
@@ -77,7 +78,5 @@ Grafana is at `http://127.0.0.1:3001`, Prometheus at `http://127.0.0.1:9090`, Mi
 ## Platform notes
 
 - **macOS:** GNU-compatible Make commands work with the system Make. Docker Desktop must be running. This environment has Command Line Tools only; full Xcode/simulator installation is still required. Some PostGIS image tags may require Docker's amd64 emulation on Apple Silicon; verify the selected image before claiming infrastructure success.
-- **Linux:** install Make, a supported Node/uv toolchain, and Docker with daemon access. Android needs an SDK/emulator. Linux cannot perform a native iOS build; an iOS JS bundle or prebuild is not iOS runtime evidence.
+- **Linux:** install Make, Node 24.18.0 (nvm or the official tarball), uv, and Docker with daemon access. Verified on Ubuntu 26.04 under WSL2. Android needs an SDK/emulator. Linux cannot perform a native iOS build; an iOS JS bundle or prebuild is not iOS runtime evidence.
 - **Windows:** use WSL2 with Make, Node, uv and Docker Desktop WSL integration. Run the checkout and all tooling inside the same WSL environment. PowerShell is not the recipe shell; native iOS builds require macOS.
-
-No Git repository was present in the supplied directory. Initialize/review version control before committing lock files and generated artifacts; no commits have been created by this session.
