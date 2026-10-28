@@ -42,7 +42,7 @@ class DependencyProbe:
 
     async def storage(self) -> None:
         def head_bucket() -> None:
-            with boto3.session.Session().client(
+            client = boto3.session.Session().client(
                 "s3",
                 endpoint_url=self.settings.storage_endpoint,
                 aws_access_key_id=self.settings.storage_access_key.get_secret_value(),
@@ -54,8 +54,11 @@ class DependencyProbe:
                     retries={"max_attempts": 0},
                     s3={"addressing_style": "path"},
                 ),
-            ) as client:
+            )
+            try:
                 client.head_bucket(Bucket=self.settings.storage_bucket)
+            finally:
+                client.close()
 
         await anyio.to_thread.run_sync(head_bucket, abandon_on_cancel=True)
 
