@@ -29,10 +29,14 @@ def infrastructure() -> Iterator[tuple[Settings, DockerContainer]]:
         .with_env("POSTGRES_DB", "platform_test")
         .with_exposed_ports(5432) as database,
         DockerContainer("redis:7.4.2-alpine").with_exposed_ports(6379) as redis,
-        DockerContainer("minio/minio:RELEASE.2025-04-22T22-12-26Z")
+        # Same image as infrastructure/docker/minio.Dockerfile (official images are discontinued).
+        DockerContainer(
+            "bitnamilegacy/minio:2025.4.22@sha256:50cec18ac4184af4671a78aedd5554942c8ae105d51a465fa82037949046da01"
+        )
+        .with_kwargs(entrypoint="minio")
         .with_env("MINIO_ROOT_USER", "integration-key")
         .with_env("MINIO_ROOT_PASSWORD", "integration-secret")
-        .with_command("server /data")
+        .with_command("server /bitnami/minio/data")
         .with_exposed_ports(9000) as storage,
     ):
         wait_for_logs(database, "database system is ready to accept connections")
