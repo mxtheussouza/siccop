@@ -1,0 +1,10 @@
+{
+  "app": { "name": "Coordenação operacional", "description": "Plataforma de monitoramento e coordenação de operações." },
+  "login": {
+    "stage": "Ambiente em construção · Fase 01",
+    "title": "Acesso à plataforma",
+    "description": "A autenticação ainda não foi implementada. O acesso será disponibilizado após a integração segura com a API.",
+    "action": "Entrar indisponível",
+    "notice": "Nenhuma credencial é solicitada nesta etapa."
+  }
+}

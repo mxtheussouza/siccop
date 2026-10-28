@@ -1,0 +1,76 @@
+# LIMITATIONS.md
+
+Honest register of everything that is stubbed, unverified, blocked, or intentionally out of scope. A feature that is not fully working must appear here **and** be visibly disabled or return `501 NOT_IMPLEMENTED` in the product.
+
+Rules:
+- Add an entry the moment a gap is known. Never delete entries to look finished; mark `RESOLVED (date, evidence)`.
+- Every `DEVICE` requirement appears here as `UNVERIFIED-ON-DEVICE` until its checklist is ticked.
+- Tests skipped or not run (no Docker, no emulator) appear here with the command a human must run.
+
+| ID | Requirement | Type | What is missing / why | Who must act and how | Visible in product as |
+|---|---|---|---|---|---|
+| L-001 | DX-01 | BLOCKED | The supplied directory has no Git repository. No lock files or generated artifacts could be committed; none were invented. | Repository owner initializes version control and reviews/commits the bootstrap after validation. | Development/repository concern; no product claim. |
+| L-111 | DX-01, OBS-01 | RESOLVED (2026-10-21) | Resume found host-managed Python 3.13.16. Removed the Makefile install-directory override that hid it; uv now selects it and created the API .venv. | Evidence: `uv python find --no-python-downloads 3.13.16`, `.venv/bin/python --version`, and 2 passing tooling tests on 3.13.16. Dependency installation remains blocked separately by L-112. | README still marks the overall phase unverified. |
+| L-112 | DX-01, OBS-01 | BLOCKED / NOT-RUN | npm and PyPI package downloads fail DNS. Python and JS locks now exist and make lock passes from metadata caches, but app dependencies are not installed. Formatting, linting, typechecking, API/web/mobile tests, builds and audits did not run. Direct pins remain candidates pending resolution/compatibility/audit. | Run `make lock setup`, review resolved dependencies and Expo compatibility, then `make format verify phase-check`. Record real installed versions in VERSIONS.md. | No working platform or login is claimed. |
+| L-113 | DX-01 | BLOCKED | Authoritative OpenAPI export and generated TS schema artifacts are absent because FastAPI and the generator cannot be installed. Generation and byte-comparison scripts plus typed client are written. | Run `make contracts contracts-check` with installed dependencies; retain `packages/contracts/openapi.json` and `src/schema.d.ts` in version control. CI fails on missing/stale files. | No API consumer is connected in either UI. |
+| L-114 | DX-01, MOB-01 | NOT-RUN | API `/health` and `/ready` live smoke checks, Next `/login` serving, Expo config/export/prebuild and native runs have not executed. No Android SDK/emulator or full Xcode/simulator is available. | After dependencies work, run API/web smoke checks, `pnpm --filter @platform/mobile config-check`, `build` and `prebuild-check`; install native toolchains for runtime validation. | Mobile tabs explicitly say the feature is not implemented. |
+| L-115 | DX-01 | STUB | `make seed` intentionally fails with NOT_IMPLEMENTED until the domain model and dev users exist in Phase 02. It refuses production. | Complete the authorized Phase 02 seed after Phase 01 exit criteria pass. | CLI prints the reason and exits nonzero; there is no fake seeded dataset. |
+| L-116 | AUTH-01, AUTH-05, MOB-01 | STUB | Phase 01 has only a disabled web login and mobile tab placeholders. Auth, token storage and operational screens belong to later phases and remain NOT-STARTED in the requirement inventory. | Implement auth in Phases 02/03 and mobile features in Phase 09. | Disabled login with visible reason; every mobile placeholder announces unavailable behavior in pt-BR. |
+| L-117 | OBS-01 | STUB | Readiness/logging source exists but request metrics, worker metrics and OTel are Phase 13. Bootstrap Grafana has only a real Prometheus datasource; no invented dashboard figures. | Implement and measure instrumentation in Phase 13. | README states that monitoring currently scrapes Prometheus itself. |
+
+Types:
+- **STUB** — boundary implemented, behavior absent.
+- **UNVERIFIED-ON-DEVICE** — code complete, needs real-device checklist.
+- **BLOCKED** — needs credential, service, platform or decision.
+- **NOT-RUN** — tests exist but could not run in the agent environment.
+- **OUT-OF-SCOPE** — deliberately not in v1 (see `SPEC.md §1`).
+
+## Future-phase expectations
+
+These entries preserve planned device/provider obligations. They do not mean the corresponding code is complete. All DEVICE requirements remain NOT-STARTED; checklist templates at `docs/mobile/android.md` and `docs/mobile/ios.md` are unticked. No emulator, native build or physical-device run is claimed.
+
+| ID | Item | Type |
+|---|---|---|
+| L-100 | TRK-06, TRK-07: Android GPS, foreground service, battery behavior; future Phase 09 code and human checklist needed | UNVERIFIED-ON-DEVICE |
+| L-101 | TRK-06, TRK-08: iOS GPS permission/lifecycle; future Phase 09 code and human checklist needed | UNVERIFIED-ON-DEVICE |
+| L-102 | NOT-02: Expo push on both OSes; future Phase 12 code, EAS project and signing/push credentials needed | BLOCKED / UNVERIFIED-ON-DEVICE |
+| L-103 | DX-01 / mobile EMU: macOS detected, but only Command Line Tools are installed; full Xcode/simulator required for iOS runtime. Physical signing is a later separate need. | BLOCKED |
+| L-104 | EAS Build/Submit — requires Expo account + signing credentials | BLOCKED |
+| L-105 | Satellite/topographic/hybrid base layers — require a tile provider/key or self-hosted tiles | BLOCKED until configured |
+| L-106 | LGPD legal basis and privacy notice — controller's legal deliverable | BLOCKED (human) |
+| L-107 | Mobile map-object drawing | OUT-OF-SCOPE v1 |
+| L-108 | SSO/OIDC login flow (backend prepared only) | OUT-OF-SCOPE v1 |
+| L-109 | Scalability figures — only measured values may be stated | MANUAL (PERF-02) |
+| L-110 | DX-01, OBS-01: Docker CLI exists but the current session cannot access the daemon socket (permission denied after startup attempts). `make infra-up`, real PostGIS migration and `test_postgis_migration_and_readiness_redis_outage` NOT RUN. `make test-integration` reports NOT RUN and exits nonzero. Start Docker, run `make infra-up migrate test-integration`, then verify readiness with Redis stopped. No SQLite/database mocks are substituted. | NOT-RUN |
+| L-118 | AUTH-05: SecureStore physical-device behavior; future auth implementation and Android/iOS human checklist required | UNVERIFIED-ON-DEVICE |
+| L-119 | ATT-02: camera/gallery permissions and compression on both OSes; future attachment code and human checklist required | UNVERIFIED-ON-DEVICE |
+| L-120 | OFF-04: offline creation/reconciliation on both OSes; future Phase 10 code and human checklist required | UNVERIFIED-ON-DEVICE |
+
+## Local check evidence (2026-10-21)
+
+- `make verify`: FAILED at format-check, exit 2; uv could not download required Python because DNS failed. No downstream gate stage ran.
+- `python3 -m unittest discover -s tools/tests -v`: 2 tooling tests passed under host Python 3.14.7. This is not API Python 3.13 evidence.
+- Python AST, JSON and pyproject TOML syntax checks passed. These do not replace Ruff, Pyright, TypeScript or app tests.
+- JavaScript syntax checks and `node --test packages/config/tests/*.test.mjs` passed (1 configuration test).
+- `docker compose --env-file .env.example config --quiet` passed config validation only; no containers started.
+- `make phase-check`: inventory passed, then contracts-check failed because Corepack could not resolve npm. Expo config was not reached.
+- `make test-integration`: explicit NOT RUN with nonzero exit because no Docker daemon is available.
+- `make lock`: failed downloading Python (DNS); no lock artifacts were generated.
+- At the initial probe, dependency locks, API OpenAPI export and generated TS schema were absent. See the second-resume evidence below: locks now exist; generated contracts remain absent.
+
+## Resume evidence (2026-10-21)
+
+- L-111 is resolved for runtime discovery only. `make verify` now finds Python 3.13.16 but exits 2 at format-check because `uv.lock` is absent; Ruff did not start.
+- L-112 persists: `make lock` selects Python successfully then fails on PyPI DNS. npm DNS also fails, including pinned pnpm acquisition. No proxy is configured; managed network access could not be restored from the workspace. Locks were not fabricated and no dependency pins were weakened.
+- L-113 persists: `make contracts` and `make phase-check` fail on npm access. OpenAPI export, schema freshness and Expo config did not run.
+- L-110 persists: `docker desktop start` reported permission errors in its host log directory; native UI access timed out. `make infra-up` explicitly failed connecting to the Docker socket with permission denied. No server/container startup success is claimed. A host session with Docker access must start/inspect Desktop and rerun `make infra-up migrate test-integration`.
+- `make test-integration` reports NOT RUN with a nonzero exit. Dependency-backed unit tests, lint, typechecks, builds, audits and live smoke checks remain NOT RUN.
+- Two tooling tests passed on Python 3.13.16, one configuration test passed on Node 24.18.0, and source inventory / Compose configuration checks passed. No full product requirement is DONE.
+
+## Second-resume evidence (2026-10-21)
+
+- Lock-resolution portion of L-112: RESOLVED. Existing `apps/api/uv.lock` and root `pnpm-lock.yaml` were preserved and validated by `make lock` (86 Python packages; 7 JS workspace projects). `uv lock --check --offline --project apps/api` passed. No lock data was fabricated.
+- Pinned pnpm 12.4.2 is now available in the workspace Corepack cache. L-112 remains BLOCKED for downloads/installation: `make lock setup` reached setup, then failed fetching a locked wheel from files.pythonhosted.org. Independent frozen JS installation fails fetching npm tarballs. Metadata cache hits do not supply the missing package contents.
+- L-113 persists: generator dependencies and API dependencies are unavailable, so `make contracts` and schema freshness cannot complete. No handwritten schema substitutes were added.
+- L-110 persists: detached Docker Desktop startup returned 0 with a Starting message, but host-log writes were denied and subsequent Docker probes fail on a missing socket. `make infra-up` failed; real integration tests reported explicit NOT RUN. A startup acknowledgement is not container health evidence.
+- `make verify` now consumes the real Python lock but still exits 2 before Ruff starts, because required packages cannot be downloaded. Lint, strict typechecks, app tests, builds, audits and live smoke checks remain NOT RUN. The independent tooling/configuration tests and Compose/source validation passed again.

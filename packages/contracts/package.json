@@ -1,0 +1,14 @@
+{
+  "name": "@platform/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "types": "src/index.ts",
+  "dependencies": { "openapi-fetch": "0.15.0" },
+  "scripts": {
+    "generate": "node scripts/generate.mjs",
+    "check": "node scripts/generate.mjs --check",
+    "typecheck": "tsc --project tsconfig.json",
+    "build": "tsc --project tsconfig.json"
+  },
+  "devDependencies": { "openapi-typescript": "7.10.1" }
+}

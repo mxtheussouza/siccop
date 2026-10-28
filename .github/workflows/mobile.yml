@@ -1,0 +1,24 @@
+name: Mobile shared checks and bundles
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  mobile:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - uses: pnpm/action-setup@v4.0.0
+      - uses: actions/setup-node@v4.4.0
+        with:
+          node-version-file: .nvmrc
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec prettier --check apps/mobile
+      - run: pnpm exec eslint apps/mobile --max-warnings 0
+      - run: pnpm --filter @platform/mobile exec expo install --check
+      - run: pnpm --filter @platform/mobile typecheck
+      - run: pnpm --filter @platform/mobile test
+      - run: pnpm --filter @platform/mobile config-check
+      - run: pnpm --filter @platform/mobile build
+      - run: pnpm --filter @platform/mobile prebuild-check
+      # JS bundles and native project generation are not Android/iOS native builds or device evidence.

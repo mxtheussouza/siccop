@@ -1,0 +1,22 @@
+name: API and monorepo gate
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - uses: pnpm/action-setup@v4.0.0
+      - uses: actions/setup-node@v4.4.0
+        with:
+          node-version-file: .nvmrc
+      - uses: astral-sh/setup-uv@v6.0.1
+        with:
+          version: 0.13.4
+          python-version: "3.13.16"
+      - run: make setup
+      # Testcontainers owns real PostGIS, Redis and MinIO lifecycles on this Docker runner.
+      - run: make verify
+      - run: make phase-check

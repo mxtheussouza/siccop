@@ -1,0 +1,6 @@
+{
+  "name": "@platform/tooling",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": { "typecheck": "tsc --project tsconfig.json", "build": "tsc --project tsconfig.json" }
+}

@@ -1,0 +1,72 @@
+[project]
+name = "operational-platform-api"
+version = "0.1.0"
+description = "Operation-scoped situational awareness API"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+  "fastapi==0.156.4",
+  "pydantic==2.14.1",
+  "pydantic-settings==2.16.1",
+  "uvicorn==0.54.0",
+  "sqlalchemy[asyncio]==2.1.5",
+  "asyncpg==0.30.0",
+  "alembic==1.15.2",
+  "geoalchemy2==0.17.1",
+  "redis==5.2.1",
+  "boto3==1.38.13",
+  "structlog==25.3.0",
+  "dramatiq[redis]==1.18.0",
+]
+
+[dependency-groups]
+dev = [
+  "ruff==0.11.8",
+  "pyright==1.1.400",
+  "pytest==8.3.5",
+  "pytest-asyncio==0.26.0",
+  "pytest-cov==6.1.1",
+  "httpx==0.28.1",
+  "testcontainers[postgres,redis,minio]==4.10.0",
+  "boto3-stubs[s3]==1.38.13",
+  "pip-audit==2.9.0",
+]
+
+[build-system]
+requires = ["hatchling==1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/app"]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "ASYNC", "S"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101"] # Pytest assertions are the test API.
+
+[tool.pyright]
+pythonVersion = "3.13"
+typeCheckingMode = "strict"
+include = ["src"]
+stubPath = "typings"
+venvPath = "."
+venv = ".venv"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+addopts = "--strict-markers --strict-config"
+markers = ["integration: requires real Docker PostGIS, Redis and MinIO services"]
+
+[tool.coverage.run]
+source = ["app"]
+branch = true
+omit = ["src/app/modules/*/__init__.py"]
+
+[tool.coverage.report]
+show_missing = true

@@ -1,0 +1,30 @@
+name: Dependency and secret scanning
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  dependencies:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - uses: pnpm/action-setup@v4.0.0
+      - uses: actions/setup-node@v4.4.0
+        with:
+          node-version-file: .nvmrc
+      - uses: astral-sh/setup-uv@v6.0.1
+        with:
+          version: 0.13.4
+          python-version: "3.13.16"
+      - run: pnpm install --frozen-lockfile
+      - run: uv sync --locked --project apps/api
+      - run: uv run --locked --project apps/api pip-audit
+      - run: pnpm audit --audit-level moderate
+  secrets:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4.2.2
+        with:
+          fetch-depth: 0
+      - run: docker run --rm -v "$PWD:/repo:ro" zricethezav/gitleaks:v8.24.2 git /repo --redact --no-banner

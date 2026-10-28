@@ -1,0 +1,20 @@
+name: Web
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  web:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - uses: pnpm/action-setup@v4.0.0
+      - uses: actions/setup-node@v4.4.0
+        with:
+          node-version-file: .nvmrc
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec prettier --check apps/web
+      - run: pnpm exec eslint apps/web --max-warnings 0
+      - run: pnpm --filter @platform/web typecheck
+      - run: pnpm --filter @platform/web test
+      - run: pnpm --filter @platform/web build

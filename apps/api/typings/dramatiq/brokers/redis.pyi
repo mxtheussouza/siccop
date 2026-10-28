@@ -1,0 +1,3 @@
+# Constructor surface used by the Phase 01 worker; extend when actors are introduced.
+class RedisBroker:
+    def __init__(self, *, url: str) -> None: ...
